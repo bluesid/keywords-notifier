@@ -42,5 +42,5 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
 
 
 if __name__ == "__main__":
-    search_keyword = "알뜰폰,유심,요금"
+    search_keyword = "알뜰폰"
     find_keyword(search_keyword)
