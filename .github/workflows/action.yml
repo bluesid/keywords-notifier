@@ -1,4 +1,4 @@
-name: 키워드 노티
+name: keywords notifier
 on:
   workflow_dispatch:
   schedule:
