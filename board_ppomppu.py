@@ -1,45 +1,96 @@
 import requests
-from urllib.parse import urljoin
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+import visited_files as vu
 
+# 요청할 URL
 base_url = "https://www.ppomppu.co.kr/zboard/zboard.php?id=ppomppu"
 page_url = "https://www.ppomppu.co.kr/zboard/zboard.php?"
 
 def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
-    try:
-        with open(visited_urls_file, 'r') as file:
-            visited_urls = set(file.read().splitlines())
-    except FileNotFoundError:
-        visited_urls = set()
+    visited_urls = vu.visited_urls_open(visited_urls_file)
 
+    # 페이지 요청
     response = requests.get(base_url)
-    print(f"ppomppu\tlist get HTTP STATUS : {response.status_code}")
-    soup = BeautifulSoup(response.text, 'html.parser')
+    print(f"ppomppu\tlist http http status : {response.status_code}")
+    # 응답 확인
+    if response.status_code == 200:
+        # BeautifulSoup을 이용해 HTML 파싱
+        soup = BeautifulSoup(response.text, 'html.parser')
 
-    list_subject_links = soup.find_all(class_='baseList-box')
+        # 게시물 리스트 테이블 찾기
+        rows = soup.find_all(class_='baseList bbs_new1')
+        # print(rows)
+        # 게시물 정보 추출
+        search_keyword_list = search_keyword.split(",")
+        found_list = []
+        for row in rows:
+            try:
+                cells = row.find_all('td')
+                if len(cells) == 7:  # 유효한 게시물 행인지 확인
+                    continue
 
-    search_keyword_list = search_keyword.split(",")
-    found_list = []
-    for subject in list_subject_links:
-        a_tag = subject.find('a', href=True)
-        if a_tag:
-            # print(a_tag.text)
-            for search_keyword in search_keyword_list:
-                if search_keyword.casefold() in a_tag.text.casefold():
-                    full_link = urljoin(page_url, a_tag['href'])
+                # 번호, 제목, 글쓴이, 등록일, 추천, 조회 데이터 추출
+                """
+                num = cells[0].text.strip()
+                title = cells[1].find('a', class_='baseList-title').text
+                comment_obj = cells[1].find('span', class_='baseList-c')
+                comment = "0"
+                if(comment_obj):
+                    comment = comment_obj.text
+                link = cells[1].find('a', class_='baseList-title')['href']
+                author = cells[2].find('span').text.strip()
+                date = cells[3].get('title')
+                recommend = cells[5].text.strip()
+                good = 0
+                bad = 0
+                recommend = cells[4].text.split('-')
+                if(len(recommend)>1):
+                    good = recommend[0].strip()
+                    bad = recommend[1].strip()
+                views = cells[5].text.strip()
+                """
+                title = cells[1].find('a', class_='baseList-title').text
+                link = cells[1].find('a', class_='baseList-title')['href']
+                comment_obj = cells[1].find('span', class_='baseList-c')
+                comment = "0"
+                if(comment_obj):
+                    comment = comment_obj.text
+
+                # 키워드
+                for search_keyword in search_keyword_list:
+                    if (search_keyword.casefold() in title.casefold()):
+                        full_link = urljoin(page_url, link)
+                        if full_link in visited_urls:
+                            continue  # Skip already visited links
+
+                        found_list.append(
+                            {"title": title, "url": full_link}
+                        )
+                        # Add the visited link to the set
+                        visited_urls.add(full_link)
+                # 코멘트
+                comment_cnt = int(comment)
+                if(comment_cnt >= 10):
+                    full_link = urljoin(page_url, link)
                     if full_link in visited_urls:
                         continue  # Skip already visited links
 
                     found_list.append(
-                        {"title": a_tag.text, "url": full_link}
+                        {"title": title, "url": full_link}
                     )
                     # Add the visited link to the set
                     visited_urls.add(full_link)
 
-    # Save the updated visited URLs to the file
-    with open(visited_urls_file, 'w') as file:
-        for url in visited_urls:
-            file.write(url + '\n')
+                # 결과 출력
+                # print(f"번호: {num}, 제목: {title}, 댓글: {comment}, 글쓴이: {author}, 등록일: {date}, 추천: {good}/{bad}, 조회: {views}")
+            except Exception as e:
+                print(e)
+                pass
+    else:
+        print("페이지 요청 실패")
+
+    vu.visited_urls_save(visited_urls_file, visited_urls)
 
     return found_list
 
