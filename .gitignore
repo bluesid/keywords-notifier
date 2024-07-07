@@ -3,3 +3,5 @@ __pycache__/
 venv/
 visited_urls_*.txt
 visited_urls_ppomppu.txt
+p.py
+*.sh

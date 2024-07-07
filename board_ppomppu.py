@@ -27,6 +27,9 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
             for search_keyword in search_keyword_list:
                 if search_keyword.casefold() in a_tag.text.casefold():
                     full_link = urljoin(page_url, a_tag['href'])
+                    if full_link in visited_urls:
+                        continue  # Skip already visited links
+
                     found_list.append(
                         {"title": a_tag.text, "url": full_link}
                     )
