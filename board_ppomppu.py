@@ -7,6 +7,13 @@ import visited_files as vu
 base_url = "https://www.ppomppu.co.kr/zboard/zboard.php?id=ppomppu"
 page_url = "https://www.ppomppu.co.kr/zboard/zboard.php?"
 
+def parse_num(value):
+    try:
+        return int(value)
+    except ValueError:
+        return 0
+
+
 def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
     visited_urls = vu.visited_urls_open(visited_urls_file)
 
@@ -50,16 +57,31 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
                     bad = recommend[1].strip()
                 views = cells[5].text.strip()
                 """
-                title = cells[1].find('a', class_='baseList-title').text
-                link = cells[1].find('a', class_='baseList-title')['href']
-                comment_obj = cells[1].find('span', class_='baseList-c')
-                comment = "0"
-                if(comment_obj):
-                    comment = comment_obj.text
+                num = cells[0].text.strip()
+                if(parse_num(num) > 0):
+                    print("num : ", num)
+                    title = cells[1].find('a', class_='baseList-title').text
+                    link = cells[1].find('a', class_='baseList-title')['href']
+                    comment_obj = cells[1].find('span', class_='baseList-c')
+                    comment = "0"
+                    if(comment_obj):
+                        comment = comment_obj.text
 
-                # 키워드
-                for search_keyword in search_keyword_list:
-                    if (search_keyword.casefold() in title.casefold()):
+                    # 키워드
+                    for search_keyword in search_keyword_list:
+                        if (search_keyword.casefold() in title.casefold()):
+                            full_link = urljoin(page_url, link)
+                            if full_link in visited_urls:
+                                continue  # Skip already visited links
+
+                            found_list.append(
+                                {"title": title, "url": full_link}
+                            )
+                            # Add the visited link to the set
+                            visited_urls.add(full_link)
+                    # 코멘트
+                    comment_cnt = int(comment)
+                    if(comment_cnt >= 10):
                         full_link = urljoin(page_url, link)
                         if full_link in visited_urls:
                             continue  # Skip already visited links
@@ -69,18 +91,6 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
                         )
                         # Add the visited link to the set
                         visited_urls.add(full_link)
-                # 코멘트
-                comment_cnt = int(comment)
-                if(comment_cnt >= 10):
-                    full_link = urljoin(page_url, link)
-                    if full_link in visited_urls:
-                        continue  # Skip already visited links
-
-                    found_list.append(
-                        {"title": title, "url": full_link}
-                    )
-                    # Add the visited link to the set
-                    visited_urls.add(full_link)
 
                 # 결과 출력
                 # print(f"번호: {num}, 제목: {title}, 댓글: {comment}, 글쓴이: {author}, 등록일: {date}, 추천: {good}/{bad}, 조회: {views}")
