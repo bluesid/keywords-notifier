@@ -6,13 +6,11 @@ def main(search_keyword):
     found_list = []
     found_list += ppomppu.find_keyword(search_keyword)
 
-    msg = ""
     for found in found_list:
-        msg += f"{found['title']}\r\n{found['url']}\r\n"
-
-    if(len(found_list) > 0):
+        msg = f"{found['title']}\r\n{found['url']}\r\n"
         response = s.send_message(SLACK_BOT_TOKEN, SLACK_CHANNEL, msg)
         print(f"slack send STATUS : {response.status_code}")
+
 
 if __name__ == "__main__":
     SLACK_BOT_TOKEN = sys.argv[1]
