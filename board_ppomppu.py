@@ -14,12 +14,18 @@ def parse_num(value):
         return 0
 
 
+def convert_m_page(full_link):
+    return full_link.replace('www.ppomppu', 'm.ppomppu') \
+        .replace('/zboard', '') \
+        .replace('view.php', 'new/bbs_view.php')
+
+
 def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
     visited_urls = vu.visited_urls_open(visited_urls_file)
 
     # 페이지 요청
     response = requests.get(base_url)
-    print(f"ppomppu\tlist http http status : {response.status_code}")
+    print(f">>> ppomppu\tlist http status : {response.status_code}")
     # 응답 확인
     if response.status_code == 200:
         # BeautifulSoup을 이용해 HTML 파싱
@@ -30,6 +36,7 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
         # print(rows)
         # 게시물 정보 추출
         search_keyword_list = search_keyword.split(",")
+        # print(search_keyword_list)
         found_list = []
         for row in rows:
             try:
@@ -59,7 +66,6 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
                 """
                 num = cells[0].text.strip()
                 if(parse_num(num) > 0):
-                    print("num : ", num)
                     title = cells[1].find('a', class_='baseList-title').text
                     link = cells[1].find('a', class_='baseList-title')['href']
                     comment_obj = cells[1].find('span', class_='baseList-c')
@@ -74,8 +80,9 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
                             if full_link in visited_urls:
                                 continue  # Skip already visited links
 
+                            m_link = convert_m_page(full_link)
                             found_list.append(
-                                {"title": title, "url": full_link}
+                                {"title": title, "url": m_link}
                             )
                             # Add the visited link to the set
                             visited_urls.add(full_link)
@@ -92,8 +99,9 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
                         # Add the visited link to the set
                         visited_urls.add(full_link)
 
-                # 결과 출력
-                # print(f"번호: {num}, 제목: {title}, 댓글: {comment}, 글쓴이: {author}, 등록일: {date}, 추천: {good}/{bad}, 조회: {views}")
+                    # 결과 출력
+                    # print(f"번호:{num}, 제목:{title}")
+                    # print(f"번호: {num}, 제목: {title}, 댓글: {comment}, 글쓴이: {author}, 등록일: {date}, 추천: {good}/{bad}, 조회: {views}")
             except Exception as e:
                 print(e)
                 pass
