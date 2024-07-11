@@ -20,6 +20,19 @@ def convert_m_page(full_link):
         .replace('view.php', 'new/bbs_view.php')
 
 
+def append_list(found_list, link, title, visited_urls):
+    full_link = urljoin(page_url, link)
+    if full_link in visited_urls:
+        return  # 이미 방문한 링크는 건너뛰기
+
+    m_link = convert_m_page(full_link)
+    found_list.append(
+        {"title": title, "url": m_link}
+    )
+    # Add the visited link to the set
+    visited_urls.add(full_link)
+
+
 def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
     visited_urls = vu.visited_urls_open(visited_urls_file)
 
@@ -76,28 +89,11 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
                     # 키워드
                     for search_keyword in search_keyword_list:
                         if (search_keyword.casefold() in title.casefold()):
-                            full_link = urljoin(page_url, link)
-                            if full_link in visited_urls:
-                                continue  # Skip already visited links
-
-                            m_link = convert_m_page(full_link)
-                            found_list.append(
-                                {"title": title, "url": m_link}
-                            )
-                            # Add the visited link to the set
-                            visited_urls.add(full_link)
+                            append_list(found_list, link, title, visited_urls)
                     # 코멘트
                     comment_cnt = int(comment)
                     if(comment_cnt >= 10):
-                        full_link = urljoin(page_url, link)
-                        if full_link in visited_urls:
-                            continue  # Skip already visited links
-
-                        found_list.append(
-                            {"title": title, "url": full_link}
-                        )
-                        # Add the visited link to the set
-                        visited_urls.add(full_link)
+                        append_list(found_list, link, title, visited_urls)
 
                     # 결과 출력
                     # print(f"번호:{num}, 제목:{title}")
