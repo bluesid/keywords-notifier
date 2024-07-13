@@ -15,9 +15,9 @@ def parse_num(value):
 
 
 def convert_m_page(full_link):
-    return full_link.replace('www.ppomppu', 'm.ppomppu') \
-        .replace('/zboard', '') \
-        .replace('view.php', 'new/bbs_view.php')
+    return full_link.replace(
+        'www.ppomppu.co.kr/zboard/view',
+        'm.ppomppu.co.kr/new/bbs_view')
 
 
 def append_list(found_list, link, title, visited_urls):
@@ -39,6 +39,8 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
     # 페이지 요청
     response = requests.get(base_url)
     print(f">>> ppomppu\tlist http status : {response.status_code}")
+
+    found_list = []
     # 응답 확인
     if response.status_code == 200:
         # BeautifulSoup을 이용해 HTML 파싱
@@ -46,11 +48,11 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
 
         # 게시물 리스트 테이블 찾기
         rows = soup.find_all(class_='baseList bbs_new1')
-        # print(rows)
-        # 게시물 정보 추출
-        search_keyword_list = search_keyword.split(",")
+        search_keyword_list = []
+        if(search_keyword is not None):
+            search_keyword_list = search_keyword.split(",")
         # print(search_keyword_list)
-        found_list = []
+        # 게시물 정보 추출
         for row in rows:
             try:
                 cells = row.find_all('td')
@@ -62,9 +64,9 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
                 num = cells[0].text.strip()
                 title = cells[1].find('a', class_='baseList-title').text
                 comment_obj = cells[1].find('span', class_='baseList-c')
-                comment = "0"
+                comment = 0
                 if(comment_obj):
-                    comment = comment_obj.text
+                    comment = int(comment_obj.text)
                 link = cells[1].find('a', class_='baseList-title')['href']
                 author = cells[2].find('span').text.strip()
                 date = cells[3].get('title')
@@ -82,17 +84,16 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
                     title = cells[1].find('a', class_='baseList-title').text
                     link = cells[1].find('a', class_='baseList-title')['href']
                     comment_obj = cells[1].find('span', class_='baseList-c')
-                    comment = "0"
+                    comment = 0
                     if(comment_obj):
-                        comment = comment_obj.text
+                        comment = int(comment_obj.text)
 
                     # 키워드
                     for search_keyword in search_keyword_list:
                         if (search_keyword.casefold() in title.casefold()):
                             append_list(found_list, link, title, visited_urls)
                     # 코멘트
-                    comment_cnt = int(comment)
-                    if(comment_cnt >= 10):
+                    if(comment >= 10):
                         append_list(found_list, link, title, visited_urls)
 
                     # 결과 출력

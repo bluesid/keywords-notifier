@@ -15,6 +15,7 @@ def send_message(slack_bot_token, slack_channel, message: str) -> Response:
         "Authorization": f"Bearer {slack_bot_token}",
     }
     res = post(SLACK_API_URL, json=payload, headers=headers)
+    print(f">>> slack\tsend http status : {res.status_code}")
     return res
 
 
