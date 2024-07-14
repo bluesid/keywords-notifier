@@ -11,16 +11,15 @@ def main(search_keywords, search_platforms):
     search_platform_list = []
     if(search_platforms is not None):
         search_platform_list = search_platforms.split(",")
+    else:
+        search_platform_list.append("ppomppu")
+        search_platform_list.append("clien")
 
     for platform in search_platform_list:
         if platform == "ppomppu":
             found_list += ppomppu.find_keyword(search_keywords)
         elif platform == "clien":
             found_list += clien.find_keyword(search_keywords)
-
-    if(search_platforms is None):
-        found_list += ppomppu.find_keyword(search_keywords)
-        found_list += clien.find_keyword(search_keywords)
 
     for found in found_list:
         msg = f"{found['title']}\r\n{found['url']}\r\n"

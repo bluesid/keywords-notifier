@@ -5,3 +5,5 @@ visited_urls_*.txt
 visited_urls_ppomppu.txt
 p.py
 *.sh
+*.log
+app.log.*

@@ -1,15 +1,36 @@
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse, parse_qs, urlencode, urlunparse
 import visited_files as vu
+from log_config import get_logger
 
+logger = get_logger(__name__)
+# 요청할 URL
 base_url = "https://www.clien.net/service/board/jirum"
 
 
-def convert_m_page(full_link):
-    return full_link.replace(
-        'www.clien',
-        'm.clien')
+def convert_link(full_link):
+    # URL 파싱
+    parsed_url = urlparse(full_link)
+    # 쿼리 파라미터 추출
+    params = parse_qs(parsed_url.query)
+    # print(params)
+    # od, po, category
+    del params['od']
+    del params['po']
+    del params['category']
+    # 새 쿼리 문자열 생성
+    new_query = urlencode(params, doseq=True)
+    # 수정된 URL 생성
+    new_link = urlunparse(
+        (parsed_url.scheme, parsed_url.netloc, parsed_url.path,
+        parsed_url.params, new_query, parsed_url.fragment)
+    )
+    # print(new_link)
+    # return full_link.replace(
+    #     'www.clien',
+    #     'm.clien')
+    return new_link
 
 
 def append_list(found_list, link, title, visited_urls):
@@ -17,7 +38,7 @@ def append_list(found_list, link, title, visited_urls):
     if full_link in visited_urls:
         return  # 이미 방문한 링크는 건너뛰기
 
-    m_link = convert_m_page(full_link)
+    m_link = convert_link(full_link)
     found_list.append(
         {"title": title, "url": m_link}
     )
@@ -30,7 +51,7 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_clien.txt'):
 
     # 페이지 요청
     response = requests.get(base_url)
-    print(f">>> clien\tlist http status : {response.status_code}")
+    logger.info(f">>> clien\tlist http status : {response.status_code}")
 
     found_list = []
     # 응답 확인

@@ -1,9 +1,12 @@
 from requests import post, Response
 import sys
+from log_config import get_logger
 
+logger = get_logger(__name__)
 # SLACK 설정
 SLACK_API_URL = "https://slack.com/api/chat.postMessage"
 MESSAGE = "Hello World"
+
 
 def send_message(slack_bot_token, slack_channel, message: str) -> Response:
     payload = {
@@ -14,9 +17,10 @@ def send_message(slack_bot_token, slack_channel, message: str) -> Response:
         "Content-Type": "application/json",
         "Authorization": f"Bearer {slack_bot_token}",
     }
-    res = post(SLACK_API_URL, json=payload, headers=headers)
-    print(f">>> slack\tsend http status : {res.status_code}")
-    return res
+    response = post(SLACK_API_URL, json=payload, headers=headers)
+    logger.info(f">>> slack\tsend http status : {response.status_code}")
+
+    return response
 
 
 if __name__ == "__main__":
