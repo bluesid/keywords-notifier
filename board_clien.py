@@ -27,10 +27,11 @@ def convert_link(full_link):
         parsed_url.params, new_query, parsed_url.fragment)
     )
     # print(new_link)
-    # return full_link.replace(
-    #     'www.clien',
-    #     'm.clien')
-    return new_link
+    # return new_link
+    return full_link.replace(
+        'www.clien',
+        'm.clien')
+
 
 
 def append_list(found_list, link, title, visited_urls):
@@ -40,7 +41,7 @@ def append_list(found_list, link, title, visited_urls):
 
     m_link = convert_link(full_link)
     found_list.append(
-        {"title": title, "url": m_link}
+        {"title": title, "url": full_link, "m_url": m_link}
     )
     # Add the visited link to the set
     visited_urls.add(full_link)
