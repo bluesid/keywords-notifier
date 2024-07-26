@@ -23,7 +23,8 @@ def main(search_keywords, search_platforms):
 
     for found in found_list:
         # print(found)
-        msg = f"{found['title']}\r\nPC:{found['url']}\r\nMobile:{found['m_url']}\r\n"
+        # msg = f"{found['title']}\r\nPC:{found['url']}\r\nMobile:{found['m_url']}\r\n"
+        msg = f"{found['title']}\r\n{found['m_url']}\r\n"
         s.send_message(SLACK_BOT_TOKEN, SLACK_CHANNEL, msg)
         time.sleep(1)
 
