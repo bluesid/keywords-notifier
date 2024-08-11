@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse, parse_qs, urlencode, urlunparse
-import visited_files as vu
 from log_config import get_logger
 
 logger = get_logger(__name__)
@@ -40,22 +39,25 @@ def convert_link(full_link):
         'm.ppomppu.co.kr/new/bbs_view')
 
 
-def append_list(found_list, link, title, visited_urls):
+def append_list(found_list, link, title, comment, good, bad):
     full_link = urljoin(page_url, link)
-    if full_link in visited_urls:
-        return  # 이미 방문한 링크는 건너뛰기
-
     m_link = convert_link(full_link)
+
     found_list.append(
-        {"title": title, "url": full_link, "m_url": m_link}
+        {
+            "site": "뽐뿌",
+            "site_id": "ppomppu",
+            "title": title,
+            "full_url": full_link,
+            "m_url": m_link,
+            "comment": comment,
+            "good": good,
+            "bad": bad
+        }
     )
-    # Add the visited link to the set
-    visited_urls.add(full_link)
 
 
-def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
-    visited_urls = vu.visited_urls_open(visited_urls_file)
-
+def find_keyword(search_keyword):
     # 페이지 요청
     response = requests.get(base_url)
     logger.info(f">>> ppomppu\tlist http status : {response.status_code}")
@@ -107,14 +109,22 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
                     comment = 0
                     if(comment_obj):
                         comment = int(comment_obj.text)
+                    recommend = cells[5].text.strip()
+                    good = 0
+                    bad = 0
+                    recommend = cells[4].text.split('-')
+                    if(len(recommend)>1):
+                        good = recommend[0].strip()
+                        bad = recommend[1].strip()
 
-                    # 키워드
-                    for search_keyword in search_keyword_list:
-                        if (search_keyword.casefold() in title.casefold()):
-                            append_list(found_list, link, title, visited_urls)
-                    # 코멘트
-                    if(comment >= 10):
-                        append_list(found_list, link, title, visited_urls)
+                    append_list(
+                        found_list,
+                        link,
+                        title,
+                        comment,
+                        good,
+                        bad
+                    )
 
                     # 결과 출력
                     # print(f"번호:{num}, 제목:{title}")
@@ -124,8 +134,6 @@ def find_keyword(search_keyword, visited_urls_file='visited_urls_ppomppu.txt'):
                 pass
     else:
         print("페이지 요청 실패")
-
-    vu.visited_urls_save(visited_urls_file, visited_urls)
 
     return found_list
 
