@@ -2,8 +2,10 @@ import time
 import argparse
 import board_ppomppu as ppomppu
 import board_clien as clien
+import board_ruliweb as ruliweb
 import visited_files as vu
 import slack as s
+import const as c
 
 def finish_process(msg, send_list, full_url, site_id):
     send_or_print(msg)
@@ -59,14 +61,17 @@ def main(search_keywords, search_platforms):
     if(search_platforms is not None):
         search_platform_list = search_platforms.split(",")
     else:
-        search_platform_list.append("ppomppu")
-        search_platform_list.append("clien")
+        search_platform_list.append(c.SITE_PPOMPPU)
+        search_platform_list.append(c.SITE_CLIEN)
+        search_platform_list.append(c.SITE_RULIWEB)
 
     for platform in search_platform_list:
-        if platform == "ppomppu":
+        if platform == c.SITE_PPOMPPU:
             found_list += ppomppu.find_keyword(search_keywords)
-        elif platform == "clien":
+        elif platform == c.SITE_CLIEN:
             found_list += clien.find_keyword(search_keywords)
+        elif platform == c.SITE_RULIWEB:
+            found_list += ruliweb.find_keyword(search_keywords)
 
     search_keyword_list = []
     if(search_keywords is not None):
