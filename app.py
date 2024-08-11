@@ -25,8 +25,7 @@ def filtered_list(found_list, send_list, remove_keyword_list = []):
     # visited_urls
     filtered_list = []
     for found in found_list:
-        visited_urls_file = "visited_urls_" + found['site_id'] + ".txt"
-        visited_urls = vu.visited_urls_open(visited_urls_file)
+        visited_urls = vu.visited_urls_open(found['site_id'])
         if found['full_url'] not in visited_urls:
             filtered_list.append(found)
     found_list = filtered_list
