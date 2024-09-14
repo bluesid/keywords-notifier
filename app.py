@@ -104,7 +104,7 @@ def main(search_keywords, search_platforms):
     for idx, found in enumerate(found_list):
         # 코멘트
         msg = f"{found['site']}, good : {found['good']}, comment : {found['comment']}\r\n"
-        if(int(found['comment']) >= 10):
+        if(int(found['comment']) >= 10 and int(found['good']) >= 1):
             msg += f"{found['title']}\r\n{found['m_url']}\r\n"
             finish_process(msg, send_list, found['full_url'], found['site_id'])
 
