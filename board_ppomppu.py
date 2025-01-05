@@ -130,7 +130,7 @@ def find_keyword(search_keyword):
                     # print(f"번호:{num}, 제목:{title}")
                     # print(f"번호: {num}, 제목: {title}, 댓글: {comment}, 글쓴이: {author}, 등록일: {date}, 추천: {good}/{bad}, 조회: {views}")
             except Exception as e:
-                print(e)
+                logger.error(f">>> ppomppu\texception : {e}")
                 pass
     else:
         print("페이지 요청 실패")

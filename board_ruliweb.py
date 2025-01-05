@@ -79,8 +79,13 @@ def find_keyword(search_keyword):
                 bad = 0
                 views = row.find('td', class_='hit').text.strip()
                 """
-                title = row.find('a', class_='deco').text
-                link = row.find('a', class_='deco')['href']
+                title_element = row.find('a', class_='subject_link deco')
+                # 'num_reply'를 제거
+                for num_reply in title_element.find_all('span', class_='num_reply'):
+                    num_reply.extract()
+                # 최종 텍스트 가져오기
+                title = title_element.get_text().strip()
+                link = row.find('a', class_='subject_link deco')['href']
                 comment_obj = row.find('span', class_='num')
                 comment = 0
                 if(comment_obj):
@@ -101,7 +106,7 @@ def find_keyword(search_keyword):
                 # print(f"제목:{title}")
                 # print(f"제목: {title}, 댓글: {comment}, 글쓴이: {author}, 등록일: {date}, 추천: {good}, 조회: {views}")
             except Exception as e:
-                print(e)
+                logger.error(f">>> ruliweb\texception : {e}")
                 pass
     else:
         print("페이지 요청 실패")
