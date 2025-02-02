@@ -15,9 +15,9 @@ def convert_link(full_link):
     params = parse_qs(parsed_url.query)
     # print(params)
     # od, po, category
-    del params['od']
-    del params['po']
-    del params['category']
+    params.pop('od', None)
+    params.pop('po', None)
+    params.pop('category', None)
     # 새 쿼리 문자열 생성
     new_query = urlencode(params, doseq=True)
     # 수정된 URL 생성

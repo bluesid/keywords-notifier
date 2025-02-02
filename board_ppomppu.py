@@ -23,8 +23,8 @@ def convert_link(full_link):
     params = parse_qs(parsed_url.query)
     # print(params)
     # id, page, divpage, no
-    del params['page']
-    del params['divpage']
+    params.pop('page', None)
+    params.pop('divpage', None)
     # 새 쿼리 문자열 생성
     new_query = urlencode(params, doseq=True)
     # 수정된 URL 생성

@@ -94,15 +94,18 @@ def main(search_keywords, search_platforms):
     for idx, found in enumerate(found_list):
         # 좋아요
         msg = f"{found['site']}, good : {found['good']}, bad : {found['bad']}\r\n"
-        if(int(found['good']) >= 10 and found['full_url'] not in send_list):  # 이미 보낸 것 확인
+        good_value = int(found.get('good', 0)) if str(found.get('good', '0')).isdigit() else 0
+        if(good_value >= 10 and found['full_url'] not in send_list):  # 이미 보낸 것 확인
             msg += f"{found['title']}\r\n{found['m_url']}\r\n"
             finish_process(msg, send_list, found['full_url'], found['site_id'])
 
     found_list = filtered_list(found_list, send_list, remove_keyword_list)
     for idx, found in enumerate(found_list):
         # 코멘트
-        msg = f"{found['site']}, good : {found['good']}, comment : {found['comment']}\r\n"
-        if(int(found['comment']) >= 10 and int(found['good']) >= 1 and found['full_url'] not in send_list):  # 이미 보낸 것 확인
+        comment_value = int(found.get('good', 0)) if str(found.get('good', '0')).isdigit() else 0
+        good_value = int(found.get('good', 0)) if str(found.get('good', '0')).isdigit() else 0
+        msg = f"{found['site']}, good : {found['comment']}, comment : {found['comment']}\r\n"
+        if(comment_value >= 10 and good_value >= 1 and found['full_url'] not in send_list):  # 이미 보낸 것 확인
             msg += f"{found['title']}\r\n{found['m_url']}\r\n"
             finish_process(msg, send_list, found['full_url'], found['site_id'])
 
